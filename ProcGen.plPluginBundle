@@ -1,0 +1,21 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.plPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"Procedural Generation"}
+	string %Category{"Rendering"}
+	string %MinEngineVersion{"0.7.0"}
+	string %MaxEngineVersion{"0.7.0"}
+	string %Icon{"ProcGenIcon.png"}
+    string %Banner{"ProcGenBanner.png"}
+	string %Description{"Adds support for placing objects procedurally."}
+	string %EditorPlugins{"plEditorPluginProcGen"}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"plProcGenPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General3D"}
+	string %PlasmaBuildTargetName{"ProcGenPlugin"}
+}
