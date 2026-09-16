@@ -144,6 +144,7 @@ PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGen_PlacementOutput, 2, plRTTIDefaultAlloc
   PL_BEGIN_PROPERTIES
   {
     PL_ARRAY_MEMBER_PROPERTY("Objects", m_ObjectsToPlace)->AddAttributes(new plAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    PL_ARRAY_MEMBER_PROPERTY("VegetationTypes", m_VegetationTypes)->AddAttributes(new plAssetBrowserAttribute("CompatibleAsset_Vegetation_Type")),
     PL_MEMBER_PROPERTY("Footprint", m_fFootprint)->AddAttributes(new plDefaultValueAttribute(1.0f), new plClampValueAttribute(0.0f, plVariant())),
     PL_MEMBER_PROPERTY("MinOffset", m_vMinOffset),
     PL_MEMBER_PROPERTY("MaxOffset", m_vMaxOffset),
@@ -232,8 +233,11 @@ plExpressionAST::Node* plProcGen_PlacementOutput::GenerateExpressionASTNode(plTe
       pObjectIndex = CreateRandom(17.0f, out_ast, ref_context);
     }
 
+    // Vegetation mode indexes the vegetation types instead of the prefabs.
+    const plUInt32 uiObjectCount = m_RenderMode == plProcPlacementRenderMode::Vegetation ? m_VegetationTypes.GetCount() : m_ObjectsToPlace.GetCount();
+
     pObjectIndex = out_ast.CreateUnaryOperator(plExpressionAST::NodeType::Saturate, pObjectIndex);
-    pObjectIndex = out_ast.CreateBinaryOperator(plExpressionAST::NodeType::Multiply, pObjectIndex, out_ast.CreateConstant(m_ObjectsToPlace.GetCount() - 1));
+    pObjectIndex = out_ast.CreateBinaryOperator(plExpressionAST::NodeType::Multiply, pObjectIndex, out_ast.CreateConstant(plMath::Max<plUInt32>(uiObjectCount, 1) - 1));
     pObjectIndex = out_ast.CreateBinaryOperator(plExpressionAST::NodeType::Add, pObjectIndex, out_ast.CreateConstant(0.5f));
 
     out_ast.m_OutputNodes.PushBack(out_ast.CreateOutput({plProcGenInternal::ExpressionOutputs::s_sOutObjectIndex, plProcessingStream::DataType::Byte}, pObjectIndex));
@@ -281,6 +285,9 @@ void plProcGen_PlacementOutput::Save(plStreamWriter& inout_stream)
 
   // chunk version 7
   inout_stream << m_PlacementPattern;
+
+  // chunk version 11
+  inout_stream.WriteArray(m_VegetationTypes).IgnoreResult();
 }
 
 //////////////////////////////////////////////////////////////////////////

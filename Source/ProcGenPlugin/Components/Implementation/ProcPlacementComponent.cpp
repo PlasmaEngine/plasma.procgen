@@ -503,7 +503,19 @@ void plProcPlacementComponentManager::PlaceObjects(const plWorldModule::UpdateCo
           const auto objectTransforms = task.m_pPlacementTask->GetOutputTransforms();
           bool bPlacedAsRenderData = false;
 
-          if (activeTile.GetOutput()->m_RenderMode == plProcPlacementRenderMode::GpuInstancedPrefab && cvar_ProcGenVegetationGpuInstancing && plGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsIndirectDraw)
+          if (activeTile.GetOutput()->m_RenderMode == plProcPlacementRenderMode::Vegetation)
+          {
+            uiPlacedObjects = activeTile.PlaceVegetation(*GetWorld(), objectTransforms);
+            bPlacedAsRenderData = uiPlacedObjects > 0;
+
+            if (!bPlacedAsRenderData && activeTile.GetOutput()->m_ObjectsToPlace.IsEmpty())
+            {
+              // No vegetation module and no prefabs to fall back to: the tile stays empty.
+              plStats::SetStat("ProcGen/Vegetation/LastFallbackReason", "vegetation module unavailable");
+              bPlacedAsRenderData = true;
+            }
+          }
+          else if (activeTile.GetOutput()->m_RenderMode == plProcPlacementRenderMode::GpuInstancedPrefab && cvar_ProcGenVegetationGpuInstancing && plGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsIndirectDraw)
           {
             plHybridArray<FlattenedPrefabRenderData, 4> flattenedPrefabs;
             flattenedPrefabs.SetCount(activeTile.GetOutput()->m_ObjectsToPlace.GetCount());

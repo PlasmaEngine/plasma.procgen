@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Interfaces/VegetationWorldModule.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <ProcGenPlugin/Declarations.h>
@@ -53,6 +54,8 @@ namespace plProcGenInternal
 
     plUInt32 PlaceObjects(plWorld& ref_world, plArrayPtr<const PlacementTransform> objectTransforms);
     plUInt32 PlaceRenderData(plArrayPtr<const PlacementTransform> objectTransforms, plArrayPtr<const FlattenedPrefabRenderData> flattenedPrefabs);
+    /// \brief Hands the transforms to the world's vegetation module, one tile per vegetation type. Returns 0 without a module.
+    plUInt32 PlaceVegetation(plWorld& ref_world, plArrayPtr<const PlacementTransform> objectTransforms);
     void ExtractRenderData(const plProcPlacementComponent& ownerComponent, plMsgExtractRenderData& ref_msg) const;
     plUInt32 GetRenderInstanceCount() const;
     plUInt32 GetRenderGroupCount() const;
@@ -74,6 +77,7 @@ namespace plProcGenInternal
 
     State::Enum m_State = State::Invalid;
     plDynamicArray<plGameObjectHandle> m_PlacedObjects;
+    plHybridArray<plVegetationTileHandle, 4> m_VegetationTiles;
 
     struct RenderInstance
     {

@@ -59,6 +59,7 @@ public:
   void Save(plStreamWriter& inout_stream);
 
   plHybridArray<plString, 4> m_ObjectsToPlace;
+  plHybridArray<plString, 4> m_VegetationTypes;
 
   float m_fFootprint = 1.0f;
 

@@ -233,13 +233,20 @@ void PlacementTask::ExecuteVM()
 
     // Test density against point threshold and fill remaining input point data from expression
     const Pattern* pPattern = pOutput->m_pPattern;
+    const bool bVegetation = pOutput->m_RenderMode == plProcPlacementRenderMode::Vegetation && !pOutput->m_VegetationTypes.IsEmpty();
     for (plUInt32 i = 0; i < uiNumInstances; ++i)
     {
       auto& inputPoint = m_InputPoints[i];
       const plUInt32 uiPointIndex = inputPoint.m_uiPointIndex;
       const float fThreshold = pPattern->m_Points[uiPointIndex].threshold;
 
-      if (m_Density[i] >= fThreshold && pOutput->m_ObjectsToPlace[inputPoint.m_uiObjectIndex].IsValid())
+      if (m_Density[i] < fThreshold)
+        continue;
+
+      // Vegetation mode indexes the vegetation types; every other mode needs a valid prefab at the object index.
+      const bool bObjectValid = bVegetation ? inputPoint.m_uiObjectIndex < pOutput->m_VegetationTypes.GetCount()
+                                            : (inputPoint.m_uiObjectIndex < pOutput->m_ObjectsToPlace.GetCount() && pOutput->m_ObjectsToPlace[inputPoint.m_uiObjectIndex].IsValid());
+      if (bObjectValid)
       {
         m_ValidPoints.PushBack(i);
       }

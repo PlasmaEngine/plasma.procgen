@@ -203,7 +203,7 @@ plStatus plProcGenGraphAssetDocument::WriteAsset(plStreamWriter& inout_stream, c
   };
 
   {
-    chunk.BeginChunk("PlacementOutputs", 10);
+    chunk.BeginChunk("PlacementOutputs", 11);
 
     if (!bDebug)
     {

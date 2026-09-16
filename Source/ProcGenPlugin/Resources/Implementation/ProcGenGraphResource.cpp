@@ -194,6 +194,11 @@ plResourceLoadDesc plProcGenGraphResource::UpdateContent(plStreamReader* Stream)
 
           pOutput->m_pPattern = plProcGenInternal::GetPattern(pattern);
 
+          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 11)
+          {
+            chunk.ReadArray(pOutput->m_VegetationTypes).IgnoreResult();
+          }
+
           m_PlacementOutputs.PushBack(pOutput);
         }
       }
