@@ -571,6 +571,66 @@ plExpressionAST::Node* plProcGen_Remap::GenerateExpressionASTNode(plTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGen_Curve, 1, plRTTIDefaultAllocator<plProcGen_Curve>)
+{
+  PL_BEGIN_PROPERTIES
+  {
+    PL_MEMBER_PROPERTY("Curve", m_Curve),
+    PL_MEMBER_PROPERTY("NumSamples", m_uiNumSamples)->AddAttributes(new plDefaultValueAttribute(32), new plClampValueAttribute(2, 256)),
+    PL_MEMBER_PROPERTY("X", m_InputValuePin),
+    PL_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  PL_END_PROPERTIES;
+  PL_BEGIN_ATTRIBUTES
+  {
+    new plCategoryAttribute("Math"),
+  }
+  PL_END_ATTRIBUTES;
+}
+PL_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+plExpressionAST::Node* plProcGen_Curve::GenerateExpressionASTNode(plTempHashedString sOutputName, plArrayPtr<plExpressionAST::Node*> inputs, plExpressionAST& out_ast, GraphContext& ref_context)
+{
+  PL_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
+  plCurve1D curve;
+  m_Curve.ConvertToRuntimeData(curve);
+  if (curve.IsEmpty())
+    return out_ast.CreateConstant(0.0f);
+
+  curve.SortControlPoints();
+  curve.CreateLinearApproximation();
+  double fMinX, fMaxX;
+  curve.QueryExtents(fMinX, fMaxX);
+  if (fMaxX <= fMinX)
+    return out_ast.CreateConstant(static_cast<float>(curve.Evaluate(fMinX)));
+
+  auto* pInput = inputs[0] != nullptr ? inputs[0] : out_ast.CreateConstant(0.0f);
+  const plUInt32 uiSamples = plMath::Clamp(m_uiNumSamples, 2u, 256u);
+  const double fStep = (fMaxX - fMinX) / (uiSamples - 1);
+  float fPrevious = static_cast<float>(curve.Evaluate(fMinX));
+  plExpressionAST::Node* pResult = out_ast.CreateConstant(fPrevious);
+
+  // Each clamped ramp contributes the difference between two adjacent samples. This also clamps the
+  // result at the curve's endpoints without a runtime callback or per-world lookup table.
+  for (plUInt32 i = 1; i < uiSamples; ++i)
+  {
+    const float fValue = static_cast<float>(curve.Evaluate(fMinX + i * fStep));
+    auto* pOffset = out_ast.CreateConstant(static_cast<float>(fMinX + (i - 1) * fStep));
+    auto* pRamp = out_ast.CreateBinaryOperator(plExpressionAST::NodeType::Subtract, pInput, pOffset);
+    pRamp = out_ast.CreateBinaryOperator(plExpressionAST::NodeType::Multiply, pRamp, out_ast.CreateConstant(static_cast<float>(1.0 / fStep)));
+    auto* pClamped = out_ast.CreateUnaryOperator(plExpressionAST::NodeType::Saturate, pRamp);
+    auto* pDelta = out_ast.CreateBinaryOperator(plExpressionAST::NodeType::Multiply, pClamped, out_ast.CreateConstant(fValue - fPrevious));
+    pResult = out_ast.CreateBinaryOperator(plExpressionAST::NodeType::Add, pResult, pDelta);
+    fPrevious = fValue;
+  }
+  return pResult;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGen_Contrast, 2, plRTTIDefaultAllocator<plProcGen_Contrast>)
 {
   PL_BEGIN_PROPERTIES

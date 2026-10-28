@@ -4,6 +4,7 @@
 #include <Foundation/CodeUtils/Expression/ExpressionAST.h>
 #include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/Types/TagSet.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 
 class plProcGenNodeBase : public plReflectedClass
@@ -185,6 +186,22 @@ public:
   float m_fOutputMax = 1.0f;
   bool m_bClampIntermediate = false;
 
+  plProcGenNodeInputPin m_InputValuePin;
+  plProcGenNodeOutputPin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+/// Samples an authored curve into the expression bytecode, with constant values outside its extents.
+class plProcGen_Curve : public plProcGenNodeBase
+{
+  PL_ADD_DYNAMIC_REFLECTION(plProcGen_Curve, plProcGenNodeBase);
+
+public:
+  virtual plExpressionAST::Node* GenerateExpressionASTNode(plTempHashedString sOutputName, plArrayPtr<plExpressionAST::Node*> inputs, plExpressionAST& out_ast, GraphContext& ref_context) override;
+
+  plSingleCurveData m_Curve;
+  plUInt32 m_uiNumSamples = 32;
   plProcGenNodeInputPin m_InputValuePin;
   plProcGenNodeOutputPin m_OutputValuePin;
 };
