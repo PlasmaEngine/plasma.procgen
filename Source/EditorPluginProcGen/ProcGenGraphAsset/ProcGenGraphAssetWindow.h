@@ -1,26 +1,21 @@
 #pragma once
 
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class plProcGenGraphAssetDocument;
 
-class plQtVisualGraphScene;
-class plQtVisualGraphView;
 struct plCommandHistoryEvent;
 
-class plProcGenGraphAssetDocumentWindow : public plQtDocumentWindow
+/// The procedural generation graph's window: the graph ("ProcGenGraphView") and the node properties. Every finished
+/// edit sends the graph to the engine process, so the scene previews it.
+class plProcGenGraphAssetDocumentWindow : public plDocumentWindow
 {
-  Q_OBJECT
-
 public:
   plProcGenGraphAssetDocumentWindow(plProcGenGraphAssetDocument* pDocument);
   ~plProcGenGraphAssetDocumentWindow();
 
   plProcGenGraphAssetDocument* GetProcGenGraphDocument();
-
-private Q_SLOTS:
-
 
 private:
   void UpdatePreview();
@@ -29,7 +24,4 @@ private:
   // needed for setting the debug pin
   void PropertyEventHandler(const plDocumentObjectPropertyEvent& e);
   void TransationEventHandler(const plCommandHistoryEvent& e);
-
-  plQtVisualGraphScene* m_pScene;
-  plQtVisualGraphView* m_pView;
 };

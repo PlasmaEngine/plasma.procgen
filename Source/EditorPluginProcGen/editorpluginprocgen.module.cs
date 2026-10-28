@@ -16,7 +16,7 @@ public class EditorPluginProcGenModule : ModuleRules
         PlasmaPackageSdk.ConfigureEditorSdkConsumer(this, context);
         PlasmaPackageSdk.AddPackagePluginImport(this, context, "Source/ProcGenPlugin", "plProcGenPlugin");
 
-        PlasmaPackageQt.ConfigureQtModule(this, context, "EditorPluginProcGenModule",
-            "Source/EditorPluginProcGen", "Core", "Gui", "Widgets");
+        // The plugin registers its icon folder with the editor UI.
+        PlasmaPackageSdk.AddImportLibrary(this, context, "plEditorUi");
     }
 }

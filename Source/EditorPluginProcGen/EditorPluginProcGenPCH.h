@@ -9,11 +9,8 @@
 #include <EditorPluginProcGen/EditorPluginProcGenDLL.h>
 
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-
-#include <QLabel>
-#include <QLayout>
