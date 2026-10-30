@@ -8,7 +8,7 @@
 
 namespace
 {
-  plSpatialData::Category s_ProcVolumeCategory = plSpatialData::RegisterCategory("ProcVolume", plSpatialData::Flags::None);
+  plSpatialData::Category s_ProcTaskVolumeCategory = plSpatialData::RegisterCategory("ProcVolume", plSpatialData::Flags::None);
   static plHashedString s_sVolumes = plMakeHashedString("Volumes");
 
   static const plEnum<plExpression::RegisterType> s_ApplyVolumesTypes[] = {
@@ -167,7 +167,7 @@ void plProcGenInternal::ExtractVolumeCollections(const plWorld& world, const plB
     auto& includeTags = pGraphSharedData->GetTagSet(tagSetIndex);
 
     auto& volumeCollection = ref_volumeCollections.ExpandAndGetRef();
-    plVolumeCollection::ExtractVolumesInBox(world, box, s_ProcVolumeCategory, includeTags, volumeCollection, plGetStaticRTTI<plProcVolumeComponent>());
+    plVolumeCollection::ExtractVolumesInBox(world, box, s_ProcTaskVolumeCategory, includeTags, volumeCollection, plGetStaticRTTI<plProcVolumeComponent>());
 
     volumes.EnsureCount(tagSetIndex + 1);
     volumes[tagSetIndex] = plVariant(&volumeCollection);
