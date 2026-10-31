@@ -7,6 +7,7 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Utilities/DGMLWriter.h>
+#include <GuiFoundation/EngineUi/EngineGraphView.h>
 #include <ToolsFoundation/Command/VisualGraphCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
@@ -98,7 +99,7 @@ PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGenGraphAssetProperties, 1, plRTTIDefaultA
   }
 PL_END_DYNAMIC_REFLECTED_TYPE;
 
-PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGenGraphAssetDocument, 9, plRTTINoAllocator)
+PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGenGraphAssetDocument, 10, plRTTINoAllocator)
 PL_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -203,7 +204,7 @@ plStatus plProcGenGraphAssetDocument::WriteAsset(plStreamWriter& inout_stream, c
   };
 
   {
-    chunk.BeginChunk("PlacementOutputs", 10);
+    chunk.BeginChunk("PlacementOutputs", 11);
 
     if (!bDebug)
     {
@@ -226,7 +227,6 @@ plStatus plProcGenGraphAssetDocument::WriteAsset(plStreamWriter& inout_stream, c
       chunk << uiNumNodes;
 
       context.m_GraphContext.m_VolumeTagSetIndices.Clear();
-      context.m_GraphContext.m_CurveIndices.Clear();
       context.m_GraphContext.m_OutputType = plProcGenNodeBase::GraphContext::Placement;
 
       plExpressionAST ast;
@@ -359,7 +359,7 @@ bool plProcGenGraphAssetDocument::CopySelectedObjects(plAbstractObjectGraph& out
 bool plProcGenGraphAssetDocument::Paste(const plArrayPtr<PasteInfo>& info, const plAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, plStringView sMimeType)
 {
   plVisualGraphObjectManager* pManager = static_cast<plVisualGraphObjectManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, plQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  return pManager->PasteObjects(info, objectGraph, plEditorUiGraphView::GetLastPointerGraphPos(), bAllowPickedPosition);
 }
 
 void plProcGenGraphAssetDocument::AttachMetaDataBeforeSaving(plAbstractObjectGraph& graph) const

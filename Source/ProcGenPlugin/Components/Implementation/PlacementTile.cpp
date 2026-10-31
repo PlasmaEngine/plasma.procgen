@@ -53,6 +53,18 @@ void PlacementTile::Deinitialize(plWorld& ref_world)
   }
   m_PlacedObjects.Clear();
 
+  if (!m_VegetationTiles.IsEmpty())
+  {
+    if (plVegetationWorldModuleInterface* pVegetation = ref_world.GetModule<plVegetationWorldModuleInterface>())
+    {
+      for (plVegetationTileHandle hTile : m_VegetationTiles)
+      {
+        pVegetation->RemoveTile(hTile);
+      }
+    }
+    m_VegetationTiles.Clear();
+  }
+
   if (plRenderDataManager* pRenderDataManager = ref_world.GetModule<plRenderDataManager>())
   {
     for (auto& group : m_RenderGroups)
@@ -187,6 +199,54 @@ plUInt32 PlacementTile::PlaceObjects(plWorld& ref_world, plArrayPtr<const Placem
   m_State = State::Finished;
 
   return m_PlacedObjects.GetCount();
+}
+
+plUInt32 PlacementTile::PlaceVegetation(plWorld& ref_world, plArrayPtr<const PlacementTransform> objectTransforms)
+{
+  PL_PROFILE_SCOPE("PlacementTile::PlaceVegetation");
+
+  plVegetationWorldModuleInterface* pVegetation = ref_world.GetOrCreateModule<plVegetationWorldModuleInterface>();
+  if (pVegetation == nullptr)
+    return 0;
+
+  const auto& types = m_pOutput->m_VegetationTypes;
+  if (types.IsEmpty())
+    return 0;
+
+  plHybridArray<plDynamicArray<plVegetationInstanceDesc>, 4> perType;
+  perType.SetCount(types.GetCount());
+
+  for (const PlacementTransform& objectTransform : objectTransforms)
+  {
+    const plUInt32 uiTypeIndex = plMath::Min<plUInt32>(objectTransform.m_uiObjectIndex, types.GetCount() - 1);
+    const plTransform transform = plSimdConversion::ToTransform(objectTransform.m_Transform);
+
+    plVegetationInstanceDesc& desc = perType[uiTypeIndex].ExpandAndGetRef();
+    desc.m_vPosition = transform.m_vPosition;
+    desc.m_qRotation = transform.m_qRotation;
+    desc.m_fScale = plMath::Max(transform.m_vScale.x, 0.001f);
+
+    // Stable per-point seed: the same point keeps its colour when the tile regenerates.
+    const plUInt32 hashData[] = {static_cast<plUInt32>(m_Desc.m_iPosX), static_cast<plUInt32>(m_Desc.m_iPosY), objectTransform.m_uiPointIndex};
+    desc.m_uiColorSeed = static_cast<plUInt8>(plHashingUtils::xxHash32(hashData, sizeof(hashData)) & 0xFF);
+  }
+
+  plUInt32 uiPlaced = 0;
+  for (plUInt32 uiTypeIndex = 0; uiTypeIndex < types.GetCount(); ++uiTypeIndex)
+  {
+    if (perType[uiTypeIndex].IsEmpty() || types[uiTypeIndex].IsEmpty())
+      continue;
+
+    const plVegetationTileHandle hTile = pVegetation->AddInstances(types[uiTypeIndex], perType[uiTypeIndex], plVegetationSource::Procedural);
+    if (hTile.IsInvalidated())
+      continue;
+
+    m_VegetationTiles.PushBack(hTile);
+    uiPlaced += perType[uiTypeIndex].GetCount();
+  }
+
+  m_State = State::Finished;
+  return uiPlaced;
 }
 
 plUInt32 PlacementTile::PlaceRenderData(plArrayPtr<const PlacementTransform> objectTransforms, plArrayPtr<const FlattenedPrefabRenderData> flattenedPrefabs)

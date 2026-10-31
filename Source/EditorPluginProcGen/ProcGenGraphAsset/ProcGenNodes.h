@@ -4,6 +4,7 @@
 #include <Foundation/CodeUtils/Expression/ExpressionAST.h>
 #include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/Types/TagSet.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 
 class plProcGenNodeBase : public plReflectedClass
@@ -22,7 +23,6 @@ public:
 
     plProcGenInternal::GraphSharedData m_SharedData;
     plSmallArray<plUInt8, 4> m_VolumeTagSetIndices;
-    plSmallArray<plUInt8, 4> m_CurveIndices;
     OutputType m_OutputType = OutputType::Unknown;
   };
 
@@ -43,8 +43,8 @@ public:
 
   plString m_sName;
 
-  plSmallArray<plUInt8, 4> m_VolumeTagSetIndices;
-  plSmallArray<plUInt8, 4> m_CurveIndices;
+  // Match the runtime output's array serialization (64-bit count, rather than plSmallArray's 32-bit count).
+  plHybridArray<plUInt8, 4> m_VolumeTagSetIndices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -59,6 +59,7 @@ public:
   void Save(plStreamWriter& inout_stream);
 
   plHybridArray<plString, 4> m_ObjectsToPlace;
+  plHybridArray<plString, 4> m_VegetationTypes;
 
   float m_fFootprint = 1.0f;
 
@@ -184,6 +185,22 @@ public:
   float m_fOutputMax = 1.0f;
   bool m_bClampIntermediate = false;
 
+  plProcGenNodeInputPin m_InputValuePin;
+  plProcGenNodeOutputPin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+/// Samples an authored curve into the expression bytecode, with constant values outside its extents.
+class plProcGen_Curve : public plProcGenNodeBase
+{
+  PL_ADD_DYNAMIC_REFLECTION(plProcGen_Curve, plProcGenNodeBase);
+
+public:
+  virtual plExpressionAST::Node* GenerateExpressionASTNode(plTempHashedString sOutputName, plArrayPtr<plExpressionAST::Node*> inputs, plExpressionAST& out_ast, GraphContext& ref_context) override;
+
+  plSingleCurveData m_Curve;
+  plUInt32 m_uiNumSamples = 32;
   plProcGenNodeInputPin m_InputValuePin;
   plProcGenNodeOutputPin m_OutputValuePin;
 };

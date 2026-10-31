@@ -108,6 +108,7 @@ struct plProcPlacementRenderMode
   {
     SpawnPrefabs,
     GpuInstancedPrefab,
+    Vegetation, ///< Hands the placed transforms to the world's vegetation module (plasma.vegetation); no game objects.
 
     Default = SpawnPrefabs
   };
@@ -204,10 +205,11 @@ namespace plProcGenInternal
 
     bool IsValid() const
     {
-      return !m_ObjectsToPlace.IsEmpty() && m_pPattern != nullptr && m_fFootprint > 0.0f && m_fCullDistance > 0.0f && m_pByteCode != nullptr;
+      return (!m_ObjectsToPlace.IsEmpty() || !m_VegetationTypes.IsEmpty()) && m_pPattern != nullptr && m_fFootprint > 0.0f && m_fCullDistance > 0.0f && m_pByteCode != nullptr;
     }
 
     plHybridArray<plPrefabResourceHandle, 4> m_ObjectsToPlace;
+    plHybridArray<plString, 4> m_VegetationTypes; ///< Vegetation type resource ids, used by plProcPlacementRenderMode::Vegetation.
 
     const Pattern* m_pPattern = nullptr;
     float m_fFootprint = 1.0f;

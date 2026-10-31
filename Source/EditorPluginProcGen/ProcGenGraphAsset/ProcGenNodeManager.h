@@ -1,10 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/VisualGraph/Connection.h>
-#include <GuiFoundation/VisualGraph/Node.h>
-#include <GuiFoundation/VisualGraph/Pin.h>
-#include <GuiFoundation/VisualGraph/Scene.moc.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 /// Visual graph pin for procedural generation nodes.
 ///

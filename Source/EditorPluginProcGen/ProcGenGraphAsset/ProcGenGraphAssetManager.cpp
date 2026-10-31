@@ -2,8 +2,7 @@
 
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetManager.h>
-#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetWindow.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetWindow.h>
 
 PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGenGraphAssetDocumentManager, 1, plRTTIDefaultAllocator<plProcGenGraphAssetDocumentManager>)
 PL_END_DYNAMIC_REFLECTED_TYPE;
@@ -22,8 +21,6 @@ plProcGenGraphAssetDocumentManager::plProcGenGraphAssetDocumentManager()
 
   m_DocTypeDesc.m_sResourceFileExtension = "plBinProcGenGraph";
   m_DocTypeDesc.m_AssetDocumentFlags = plAssetDocumentFlags::AutoTransformOnSave;
-
-  plQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen_Graph.svg"));
 }
 
 plProcGenGraphAssetDocumentManager::~plProcGenGraphAssetDocumentManager()
