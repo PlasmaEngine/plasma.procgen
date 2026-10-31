@@ -127,13 +127,12 @@ void plProcGenOutput::Save(plStreamWriter& inout_stream)
 {
   inout_stream << m_sName;
   inout_stream.WriteArray(m_VolumeTagSetIndices).IgnoreResult();
-  inout_stream.WriteArray(m_CurveIndices).IgnoreResult();
+  // Curves are baked into expression bytecode; the runtime output has no separate curve table.
 }
 
 void plProcGenOutput::CopyValuesFromContext(const GraphContext& context)
 {
-  m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
-  m_CurveIndices = context.m_CurveIndices;
+  m_VolumeTagSetIndices = context.m_VolumeTagSetIndices.GetArrayPtr();
 }
 
 //////////////////////////////////////////////////////////////////////////

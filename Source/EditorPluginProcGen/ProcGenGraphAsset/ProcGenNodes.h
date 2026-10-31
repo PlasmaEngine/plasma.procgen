@@ -23,7 +23,6 @@ public:
 
     plProcGenInternal::GraphSharedData m_SharedData;
     plSmallArray<plUInt8, 4> m_VolumeTagSetIndices;
-    plSmallArray<plUInt8, 4> m_CurveIndices;
     OutputType m_OutputType = OutputType::Unknown;
   };
 
@@ -44,8 +43,8 @@ public:
 
   plString m_sName;
 
-  plSmallArray<plUInt8, 4> m_VolumeTagSetIndices;
-  plSmallArray<plUInt8, 4> m_CurveIndices;
+  // Match the runtime output's array serialization (64-bit count, rather than plSmallArray's 32-bit count).
+  plHybridArray<plUInt8, 4> m_VolumeTagSetIndices;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -99,7 +99,7 @@ PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGenGraphAssetProperties, 1, plRTTIDefaultA
   }
 PL_END_DYNAMIC_REFLECTED_TYPE;
 
-PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGenGraphAssetDocument, 9, plRTTINoAllocator)
+PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGenGraphAssetDocument, 10, plRTTINoAllocator)
 PL_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -227,7 +227,6 @@ plStatus plProcGenGraphAssetDocument::WriteAsset(plStreamWriter& inout_stream, c
       chunk << uiNumNodes;
 
       context.m_GraphContext.m_VolumeTagSetIndices.Clear();
-      context.m_GraphContext.m_CurveIndices.Clear();
       context.m_GraphContext.m_OutputType = plProcGenNodeBase::GraphContext::Placement;
 
       plExpressionAST ast;
