@@ -1,37 +1,11 @@
 #include <EditorPluginProcGen/EditorPluginProcGenPCH.h>
 
-#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphQt.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
-#include <Foundation/Configuration/Startup.h>
 
 // clang-format off
 PL_BEGIN_DYNAMIC_REFLECTED_TYPE(plProcGenPin, 1, plRTTINoAllocator)
 PL_END_DYNAMIC_REFLECTED_TYPE;
-
-PL_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginProcGen, ProcGen)
-
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-    "ReflectedTypeManager"
-  END_SUBSYSTEM_DEPENDENCIES
-
-  ON_CORESYSTEMS_STARTUP
-  {
-    const plRTTI* pBaseType = plGetStaticRTTI<plProcGenNodeBase>();
-
-    plQtVisualGraphScene::GetPinFactory().RegisterCreator(plGetStaticRTTI<plProcGenPin>(), [](const plRTTI* pRtti)->plQtVisualGraphPin* { return new plQtProcGenPin(); });
-    plQtVisualGraphScene::GetNodeFactory().RegisterCreator(pBaseType, [](const plRTTI* pRtti)->plQtVisualGraphNode* { return new plQtProcGenNode(); });
-  }
-
-  ON_CORESYSTEMS_SHUTDOWN
-  {
-    const plRTTI* pBaseType = plGetStaticRTTI<plProcGenNodeBase>();
-
-    plQtVisualGraphScene::GetPinFactory().UnregisterCreator(plGetStaticRTTI<plProcGenPin>());
-    plQtVisualGraphScene::GetNodeFactory().UnregisterCreator(pBaseType);
-  }
-
-PL_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////

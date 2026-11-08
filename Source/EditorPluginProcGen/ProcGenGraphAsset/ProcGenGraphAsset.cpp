@@ -7,6 +7,7 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Utilities/DGMLWriter.h>
+#include <GuiFoundation/EngineUi/EngineGraphView.h>
 #include <ToolsFoundation/Command/VisualGraphCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
@@ -359,7 +360,7 @@ bool plProcGenGraphAssetDocument::CopySelectedObjects(plAbstractObjectGraph& out
 bool plProcGenGraphAssetDocument::Paste(const plArrayPtr<PasteInfo>& info, const plAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, plStringView sMimeType)
 {
   plVisualGraphObjectManager* pManager = static_cast<plVisualGraphObjectManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, plQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  return pManager->PasteObjects(info, objectGraph, plEditorUiGraphView::GetLastPointerGraphPos(), bAllowPickedPosition);
 }
 
 void plProcGenGraphAssetDocument::AttachMetaDataBeforeSaving(plAbstractObjectGraph& graph) const

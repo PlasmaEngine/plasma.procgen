@@ -5,8 +5,8 @@ PluginInfo
 {
 	string %DisplayName{"Procedural Generation"}
 	string %Category{"Rendering"}
-	string %MinEngineVersion{"0.7.0"}
-	string %MaxEngineVersion{"0.7.0"}
+	string %MinEngineVersion{"0.11.2"}
+	string %MaxEngineVersion{"0.11.2"}
 	string %Icon{"ProcGenIcon.png"}
     string %Banner{"ProcGenBanner.png"}
 	string %Description{"Adds support for placing objects procedurally."}

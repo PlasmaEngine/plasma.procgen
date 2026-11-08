@@ -2,82 +2,32 @@
 
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
-#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetWindow.moc.h>
-#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphQt.h>
-#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
-#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <GuiFoundation/VisualGraph/View.moc.h>
+#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetWindow.h>
+#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphView.h>
+#include <GuiFoundation/EngineUi/EngineGraphView.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 
 plProcGenGraphAssetDocumentWindow::plProcGenGraphAssetDocumentWindow(plProcGenGraphAssetDocument* pDocument)
-  : plQtDocumentWindow(pDocument)
+  : plDocumentWindow(pDocument)
 {
   GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(plMakeDelegate(&plProcGenGraphAssetDocumentWindow::TransationEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(plMakeDelegate(&plProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
 
-  // Menu Bar
+  SetMenuBarActions("ProcGenAssetMenuBar");
+  SetToolBarActions("ProcGenAssetToolBar");
+
+  // the graph, with the node properties on its right
   {
-    plQtMenuBarActionMapView* pMenuBar = static_cast<plQtMenuBarActionMapView*>(menuBar());
-    plActionContext context;
-    context.m_sMapping = "ProcGenAssetMenuBar";
-    context.m_pDocument = pDocument;
-    context.m_pWindow = this;
-    pMenuBar->SetActionContext(context);
+    plUniquePtr<plVisualGraphController> pController = PL_DEFAULT_NEW(plProcGenGraphController);
+    pController->Init(static_cast<const plVisualGraphObjectManager*>(pDocument->GetObjectManager()));
+    AddPanel<plEditorUiGraphView>({"ProcGenGraphView", "Graph"}, std::move(pController));
   }
 
-  // Tool Bar
-  {
-    plQtToolBarActionMapView* pToolBar = new plQtToolBarActionMapView("Toolbar", this);
-    plActionContext context;
-    context.m_sMapping = "ProcGenAssetToolBar";
-    context.m_pDocument = pDocument;
-    context.m_pWindow = this;
-    pToolBar->SetActionContext(context);
-    pToolBar->setObjectName("ProcGenAssetWindowToolBar");
-    addToolBar(pToolBar);
-  }
-
-  // Central Widget
-  {
-    m_pScene = new plQtProcGenScene(this);
-    m_pScene->InitScene(static_cast<const plVisualGraphObjectManager*>(pDocument->GetObjectManager()));
-    m_pView = new plQtVisualGraphView(this);
-    m_pView->SetScene(m_pScene);
-    plQtDocumentPanel* pCentral = new plQtDocumentPanel(this, pDocument);
-    pCentral->setObjectName("ProcGenGraphView");
-    pCentral->setWindowTitle("Graph");
-    pCentral->setWidget(m_pView);
-    m_pDockManager->setCentralWidget(pCentral);
-  }
-
-  {
-    plQtDocumentPanel* pPropertyPanel = new plQtDocumentPanel(this, pDocument);
-    pPropertyPanel->setObjectName("ProcGenAssetDockWidget");
-    pPropertyPanel->setWindowTitle("Node Properties");
-    pPropertyPanel->show();
-
-    plQtPropertyGridWidget* pPropertyGrid = new plQtPropertyGridWidget(pPropertyPanel, pDocument);
-    QWidget* pWidget = new QWidget();
-    pWidget->setObjectName("Group");
-    pWidget->setLayout(new QVBoxLayout());
-    pWidget->setContentsMargins(0, 0, 0, 0);
-
-    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
-    pWidget->layout()->addWidget(new plQtAssetStatusIndicator((plAssetDocument*)GetDocument()));
-    pWidget->layout()->addWidget(pPropertyGrid);
-
-    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
-
-    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
-  }
+  AddPropertiesPanel({"ProcGenAssetDockWidget", "Node Properties", plEditorUiDockRole::Right});
 
   UpdatePreview();
-
-  FinishWindowCreation();
 }
 
 plProcGenGraphAssetDocumentWindow::~plProcGenGraphAssetDocumentWindow()
